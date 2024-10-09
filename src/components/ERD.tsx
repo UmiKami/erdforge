@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { BaseSyntheticEvent, useCallback, useRef, useState } from 'react';
 import {
     ReactFlow,
     Background,
@@ -21,7 +21,11 @@ import {
 } from '@xyflow/react';
 import TableNode from './ERDNode';
 import '@xyflow/react/dist/style.css';
-import { v4 as uuidv4 } from 'uuid';
+import CustomEdge from './ERDEdge';
+
+const edgeTypes = {
+    'custom-edge': CustomEdge
+}
 
 const nodeTypes = { tableNode: TableNode };
 
@@ -41,28 +45,7 @@ const ERDComponent: React.FC = () => {
 
     // Handle pane double-click to add a node
     const handlePaneDoubleClick = (event: React.MouseEvent) => {
-        const handleStyle = 'w-5 h-5';
-        const handleStyle2 = 'w-5 h-5 ms-7';
-        let testHandles = [
-            <Handle
-                type="source"
-                position={Position.Bottom}
-                id="a"
-                className={handleStyle}
-            />,
-            <Handle
-                type="source"
-                position={Position.Bottom}
-                id="b"
-                className={handleStyle2}
-            />,
-            <Handle
-                type="source"
-                position={Position.Bottom}
-                id="c"
-                className="w-5 h-5 ms-14"
-            />
-        ]
+
 
         const newNode: Node = {
             id: `${nodeId}`,
@@ -72,7 +55,6 @@ const ERDComponent: React.FC = () => {
             },
             data: {
                 label: `Table ${nodeId}`,
-                handles: [],
                 fields: [],
                 onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
                 onAddField: (fieldName: string, fieldType: string) => handleAddField(`${nodeId}`, fieldName, fieldType),
@@ -109,12 +91,14 @@ const ERDComponent: React.FC = () => {
         );
     };
 
-    // Handle connecting nodes (adding edges)
-    const handleConnect = (params: Connection) => {
-        console.log("Connected", params);
-
-        setEdges((eds) => addEdge(params, eds));
-    };
+    
+    const onConnect = useCallback(
+        (connection: Connection) => {
+            const edge = { ...connection, type: 'custom-edge' };
+            setEdges((eds) => addEdge(edge, eds));
+        },
+        [setEdges],
+    );
 
     const onReconnectStart = useCallback(() => {
         console.log("Reconnect started");
@@ -145,55 +129,7 @@ const ERDComponent: React.FC = () => {
         setMousePosition(rflow.screenToFlowPosition({ x: event.clientX, y: event.clientY }));
     };
 
-    const createTentHandle = (_, node: Node) => {
-        const id = node.id
-        setNodes((prevNodes) =>
-            prevNodes.map((node) => {
 
-                if (node.id === id) {
-                    return {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            handles: [...node.data.handles, <Handle
-                                type="source"
-                                position={Position.Bottom}
-                                id={uuidv4()}
-                                className="w-5 h-5 mx-6"
-                            />]
-                            // fields: [...node.data.fields, { name: fieldName, type: fieldType }],
-                        },
-                    }
-                }
-
-                return node
-
-            })
-        );
-    }
-
-    const deleteTenmtHandle = (_, node: Node) => {
-        // console.log(node.id);
-        setNodes((prevNodes) =>
-            prevNodes.map((node) =>
-                node.id === node.id
-                    ? {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            handles: [...node.data.handles, <Handle
-                                type="source"
-                                position={Position.Bottom}
-                                id={uuidv4()}
-                                className="w-5 h-5 "
-                            />]
-                            // fields: [...node.data.fields, { name: fieldName, type: fieldType }],
-                        },
-                    }
-                    : node
-            )
-        );
-    }
 
     return (
         <div style={{ width: '100%', height: '90vh' }}>
@@ -207,11 +143,10 @@ const ERDComponent: React.FC = () => {
                 onReconnectStart={onReconnectStart}
                 onReconnectEnd={onReconnectEnd}
                 onPaneMouseMove={handlePaneMouseMove}
-                onNodeMouseEnter={createTentHandle}
-                onNodeMouseLeave={deleteTenmtHandle}
-                onConnect={handleConnect} // Handle edge creation
+                onConnect={onConnect} // Handle edge creation
                 onDoubleClick={handlePaneDoubleClick}
                 zoomOnDoubleClick={false}
+                edgeTypes={edgeTypes}
 
             >
                 <Controls />
