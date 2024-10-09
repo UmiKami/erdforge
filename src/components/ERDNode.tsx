@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { Handle, NodeProps, Position } from '@xyflow/react';
+import { v4 as uuidv4 } from 'uuid';
 
 const NodeLabel = styled.div`
   display: flex;
@@ -50,14 +51,12 @@ const TableNode: React.FC<NodeProps> = ({ data, isConnectable }) => {
     };
 
     const [isEditing, setIsEditing] = useState(true)
+    const [handleStyle, setHandleStyle] = useState('hidden w-0 h-0')
 
 
-    const handleStyle = 'w-5 h-5';
-    const handleStyle2 = 'w-5 h-5 ms-7';
-
-
+  
     return (
-        <NodeLabel onDoubleClick={handleDoubleClick}>
+        <NodeLabel onDoubleClick={handleDoubleClick} onMouseLeave={() => setHandleStyle('hidden w-0 h-0')} onMouseEnter={() => setHandleStyle('w-3 h-3 block')}>
             {/* Table Name Input */}
             <input
                 type="text"
@@ -79,9 +78,13 @@ const TableNode: React.FC<NodeProps> = ({ data, isConnectable }) => {
             </div>
             {/* Render existing fields */}
             {data.fields.map((field: { name: string; type: string }, index: number) => (
-                <FieldRow key={index}>
-                    <span>{field.name} ({field.type})</span>
-                </FieldRow>
+                <>
+                    <Handle className={handleStyle} id={index.toString()} type='source' position={Position.Left} style={{top: 80 + 30 * index}} />
+                    <FieldRow key={index}>
+                        <span>{field.name} ({field.type})</span>
+                    </FieldRow>
+                    <Handle className={handleStyle} id={(index*2).toString()}  type='target' position={Position.Right} style={{ top: 80 + 30 * index }} />
+                </>
             ))}
             {/* New Field Inputs */}
             <FieldRow>
@@ -101,8 +104,8 @@ const TableNode: React.FC<NodeProps> = ({ data, isConnectable }) => {
                 />
                 <button onClick={handleAddField}>Add Field</button>
             </FieldRow>
+            
 
-            {data?.handles?.map(h => h)}
         </NodeLabel>
     );
 };
