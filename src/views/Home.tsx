@@ -1,7 +1,20 @@
+import { ReactFlowProvider } from '@xyflow/react';
+import ERDComponent from '../components/ERD';
+import Toolbar from '../components/Toolbar';
+
+
+
+
 
 const Home = () => {
   return (
-    <div>Home</div>
+    <div>
+      <Toolbar/>
+      <ReactFlowProvider>
+        <ERDComponent />
+      </ReactFlowProvider>
+
+    </div>
   )
 }
 
