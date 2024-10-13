@@ -11,11 +11,14 @@ import {
     addEdge,
     useReactFlow,
     reconnectEdge,
+    SelectionMode,
 } from '@xyflow/react';
 import TableNode from './ERDNode';
 import '@xyflow/react/dist/style.css';
 import CustomEdge from './ERDEdge';
 import { useDnD } from '../store/DnDContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 const edgeTypes = {
     'custom-edge': CustomEdge
@@ -23,9 +26,13 @@ const edgeTypes = {
 
 const nodeTypes = { tableNode: TableNode };
 
+const panOnDrag = [1, 2];
+
 const ERDComponent: React.FC = () => {
     const edgeReconnectSuccessful = useRef(true);
 
+    const isSingleSelect = useSelector((state: RootState) => state.erdTools.singleSelect)
+    const isMultiSelect = useSelector((state: RootState) => state.erdTools.multiSelect)
 
     const [initialNodes, _setInitialNodes] = useState<Node[]>([]);
     const [initialEdges, _setInitialEdges] = useState<Edge[]>([]);
@@ -188,7 +195,9 @@ const ERDComponent: React.FC = () => {
                 onDoubleClick={handlePaneDoubleClick}
                 zoomOnDoubleClick={false}
                 edgeTypes={edgeTypes}
-
+                selectionMode={SelectionMode.Partial}
+                selectionOnDrag={isMultiSelect}
+                panOnDrag={isSingleSelect || panOnDrag}
             >
                 <Controls />
                 <Background variant="dots" gap={12} size={1} />
