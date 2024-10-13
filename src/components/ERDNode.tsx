@@ -62,7 +62,7 @@ const TableNode: React.FC<NodeProps> = ({ data }) => {
             {/* Table Name Input */}
             <input
                 type="text"
-                className={!isEditing && "bg-[#5B7553] placeholder:text-white text-center text-xl focus:outline-none cursor-grab rounded" || "placeholder:text-white rounded text-center text-xl bg-[#8EB897] text-white"}
+                className={!isEditing && "bg-[#5B7553] placeholder:text-white text-center text-xl focus:outline-none cursor-grab rounded" || "focus:outline-none focus:ring-1 ring-[#C3E8BD] placeholder:text-white rounded text-center text-xl bg-[#8EB897] text-white"}
                 readOnly={!isEditing}
                 onDoubleClick={() => {
                     setIsEditing(true)
