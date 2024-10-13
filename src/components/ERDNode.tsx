@@ -1,13 +1,13 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { Handle, NodeProps, Position } from '@xyflow/react';
-import { v4 as uuidv4 } from 'uuid';
+import { RiInsertRowBottom } from 'react-icons/ri';
 
 const NodeLabel = styled.div`
   display: flex;
   flex-direction: column;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
+  background-color: #5B7553;
+  border: 1px solid #8EB897;
   padding: 10px;
   border-radius: 5px;
 `;
@@ -15,15 +15,17 @@ const NodeLabel = styled.div`
 const FieldRow = styled.div`
   display: flex;
   margin-bottom: 5px;
+  border-radius: 3px;
 `;
 
 const InputField = styled.input`
   margin-right: 5px;
+  border-radius: 3px;
   flex: 1; /* Makes the inputs take up available space */
 `;
 
 // Custom node component
-const TableNode: React.FC<NodeProps> = ({ data, isConnectable }) => {
+const TableNode: React.FC<NodeProps> = ({ data }) => {
 
     const [fieldName, setFieldName] = useState('');
     const [fieldType, setFieldType] = useState('');
@@ -56,18 +58,18 @@ const TableNode: React.FC<NodeProps> = ({ data, isConnectable }) => {
 
   
     return (
-        <NodeLabel onDoubleClick={handleDoubleClick} onMouseLeave={() => setHandleStyle('hidden w-0 h-0')} onMouseEnter={() => setHandleStyle('w-3 h-3 block')}>
+        <NodeLabel className='text-[#C3E8BD]' onDoubleClick={handleDoubleClick} onMouseLeave={() => setHandleStyle('hidden w-0 h-0')} onMouseEnter={() => setHandleStyle('w-3 h-3 block bg-[#C3E8BD]')}>
             {/* Table Name Input */}
             <input
                 type="text"
-                className={!isEditing && "bg-gray-50 focus:outline-none cursor-grab" || ""}
+                className={!isEditing && "bg-[#5B7553] placeholder:text-white text-center text-xl focus:outline-none cursor-grab rounded" || "focus:outline-none focus:ring-1 ring-[#C3E8BD] placeholder:text-white rounded text-center text-xl bg-[#8EB897] text-white"}
                 readOnly={!isEditing}
                 onDoubleClick={() => {
                     setIsEditing(true)
                     console.log("Double Clicked");
 
                 }}
-                onKeyDown={(e) => e.key == "Enter" && setIsEditing(false)}
+                onKeyDown={(e) => (e.key == "Enter" || e.key == "Tab") && setIsEditing(false)}
                 value={data.label}
                 onChange={(e) => data.onNameChange(e.target.value)}
                 placeholder="Table Name"
@@ -78,13 +80,13 @@ const TableNode: React.FC<NodeProps> = ({ data, isConnectable }) => {
             </div>
             {/* Render existing fields */}
             {data.fields.map((field: { name: string; type: string }, index: number) => (
-                <>
-                    <Handle className={handleStyle} id={index.toString()} type='source' position={Position.Left} style={{top: 80 + 30 * index}} />
+                <div key={index}>
+                    <Handle className={handleStyle} id={index.toString()} type='source' position={Position.Left} style={{ top: 85 + 30 * index }} />
                     <FieldRow key={index}>
                         <span>{field.name} ({field.type})</span>
                     </FieldRow>
-                    <Handle className={handleStyle} id={(index*2).toString()}  type='target' position={Position.Right} style={{ top: 80 + 30 * index }} />
-                </>
+                    <Handle className={handleStyle} id={(index * 2).toString()} type='target' position={Position.Right} style={{ top: 85 + 30 * index, backgroundColor: "#bde2e8" }} />
+                </div>
             ))}
             {/* New Field Inputs */}
             <FieldRow>
@@ -93,16 +95,18 @@ const TableNode: React.FC<NodeProps> = ({ data, isConnectable }) => {
                     type="text"
                     value={fieldName}
                     onChange={handleFieldNameChange}
-                    placeholder="Field Name"
+                    placeholder="Column Name"
+                    className='px-2 py-1 focus:outline-none focus:ring-1 ring-[#C3E8BD] bg-[#8EB897] placeholder:text-white text-white'
                 />
                 <InputField
                     onKeyDown={(e) => (e.key === "Enter" || e.key === "Tab") && handleAddField()}
                     type="text"
                     value={fieldType}
                     onChange={handleFieldTypeChange}
-                    placeholder="Field Type"
+                    placeholder="Data Type"
+                    className='px-2 py-1 focus:outline-none focus:ring-1 ring-[#C3E8BD] placeholder:text-white text-white bg-[#8EB897]'
                 />
-                <button onClick={handleAddField}>Add Field</button>
+                <button onClick={handleAddField} ><RiInsertRowBottom /></button>
             </FieldRow>
             
 

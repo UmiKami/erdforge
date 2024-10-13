@@ -1,4 +1,5 @@
 import { BaseEdge, getSmoothStepPath, GetStraightPathParams, Position } from '@xyflow/react';
+import "../styles/ERDEdge.css"
 
 interface baseProp extends GetStraightPathParams {
     id: string;
@@ -21,7 +22,7 @@ export default function CustomEdge({ id, sourceX, sourceY, targetX, targetY }: b
 
     return (
         <>
-            <BaseEdge label="Test" id={id} path={edgePath} />
+            <BaseEdge className='stroke-[#C3E8BD] selection:stroke-red-600' label="Test" id={id} path={edgePath} />
         </>
     );
 }
