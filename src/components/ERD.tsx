@@ -12,6 +12,7 @@ import {
     useReactFlow,
     reconnectEdge,
     SelectionMode,
+    BackgroundVariant,
 } from '@xyflow/react';
 import TableNode from './ERDNode';
 import '@xyflow/react/dist/style.css';
@@ -124,8 +125,8 @@ const ERDComponent: React.FC = () => {
 
     // Handle adding a field to a node
     const handleAddField = (id: string, fieldName: string, fieldType: string) => {
-        setNodes((prevNodes) =>
-            prevNodes.map((node) =>
+        setNodes((prevNodes: Node[]) =>
+            prevNodes.map((node: Node) =>
                 node.id === id
                     ? {
                         ...node,
@@ -200,7 +201,7 @@ const ERDComponent: React.FC = () => {
                 panOnDrag={isSingleSelect || panOnDrag}
             >
                 <Controls />
-                <Background variant="dots" gap={12} size={1} />
+                <Background variant={BackgroundVariant.Dots} className="bg-[#040403]" color='#5B7553' gap={12} size={1} />
             </ReactFlow>
         </div>
     );
