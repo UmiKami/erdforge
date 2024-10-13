@@ -78,7 +78,7 @@ const ERDComponent: React.FC = () => {
                     label: `Table ${nodeId}`,
                     fields: [],
                     onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
-                    onAddField: (fieldName: string, fieldType: string) => handleAddField(`${nodeId}`, fieldName, fieldType),
+                    onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
                 },
                 type: 'tableNode',
             };
@@ -106,7 +106,7 @@ const ERDComponent: React.FC = () => {
                 label: `Table ${nodeId}`,
                 fields: [],
                 onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
-                onAddField: (fieldName: string, fieldType: string) => handleAddField(`${nodeId}`, fieldName, fieldType),
+                onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
             },
             type: 'tableNode',
         };
@@ -124,7 +124,7 @@ const ERDComponent: React.FC = () => {
     };
 
     // Handle adding a field to a node
-    const handleAddField = (id: string, fieldName: string, fieldType: string) => {
+    const handleAddField = (id: string, fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => {
         setNodes((prevNodes: Node[]) =>
             prevNodes.map((node: Node) =>
                 node.id === id
@@ -132,7 +132,7 @@ const ERDComponent: React.FC = () => {
                         ...node,
                         data: {
                             ...node.data,
-                            fields: [...node.data.fields, { name: fieldName, type: fieldType }],
+                            fields: [...node.data.fields, { name: fieldName, type: fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable }],
                         },
                     }
                     : node

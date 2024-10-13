@@ -1,0 +1,12 @@
+#NN {
+    fill: theme(backgroundColor.palette-100);
+}
+
+#crossLine{
+    fill: theme(backgroundColor.red.600);
+    height: 100px;
+}
+
+.noCross #crossLine {
+    fill: none;
+}
