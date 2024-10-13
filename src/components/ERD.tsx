@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent, useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
     ReactFlow,
     Background,
@@ -6,22 +6,19 @@ import {
     Node,
     Edge,
     Connection,
-    NodeChange,
-    EdgeChange,
-    applyNodeChanges,
-    applyEdgeChanges,
     useNodesState,
     useEdgesState,
     addEdge,
-    MiniMap,
     useReactFlow,
     reconnectEdge,
-    Position,
-    Handle,
+    SelectionMode,
 } from '@xyflow/react';
 import TableNode from './ERDNode';
 import '@xyflow/react/dist/style.css';
 import CustomEdge from './ERDEdge';
+import { useDnD } from '../store/DnDContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 const edgeTypes = {
     'custom-edge': CustomEdge
@@ -29,12 +26,16 @@ const edgeTypes = {
 
 const nodeTypes = { tableNode: TableNode };
 
+const panOnDrag = [1, 2];
+
 const ERDComponent: React.FC = () => {
     const edgeReconnectSuccessful = useRef(true);
 
+    const isSingleSelect = useSelector((state: RootState) => state.erdTools.singleSelect)
+    const isMultiSelect = useSelector((state: RootState) => state.erdTools.multiSelect)
 
-    const [initialNodes, setInitialNodes] = useState<Node[]>([]);
-    const [initialEdges, setInitialEdges] = useState<Edge[]>([]);
+    const [initialNodes, _setInitialNodes] = useState<Node[]>([]);
+    const [initialEdges, _setInitialEdges] = useState<Edge[]>([]);
     const [nodeId, setNodeId] = useState(1);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -43,8 +44,55 @@ const ERDComponent: React.FC = () => {
 
     const rflow = useReactFlow();
 
+    const [type] = useDnD();
+
+    const onDragOver = useCallback((event: React.DragEvent) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    }, []);
+
+    const onDrop = useCallback(
+        (event: React.MouseEvent) => {
+            event.preventDefault();
+
+            console.log("Dropping 1, node ID: ", nodeId);
+
+
+            // check if the dropped element is valid
+            if (!type) {
+                return;
+            }
+
+            console.log("Dropping 2");
+
+            const position = rflow.screenToFlowPosition({
+                x: event.clientX,
+                y: event.clientY,
+            });
+
+            const newNode: Node = {
+                id: `${nodeId}`,
+                position,
+                data: {
+                    label: `Table ${nodeId}`,
+                    fields: [],
+                    onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
+                    onAddField: (fieldName: string, fieldType: string) => handleAddField(`${nodeId}`, fieldName, fieldType),
+                },
+                type: 'tableNode',
+            };
+            console.log("Dropping 3");
+
+            setNodes((prev) => [...prev, newNode]);
+            console.log("Dropping 4");
+            setNodeId((prev) => prev + 1);
+            console.log("Dropping 5");
+        },
+        [rflow.screenToFlowPosition, type, nodeId],
+    );
+
     // Handle pane double-click to add a node
-    const handlePaneDoubleClick = (event: React.MouseEvent) => {
+    const handlePaneDoubleClick = (_: React.MouseEvent) => {
 
 
         const newNode: Node = {
@@ -106,7 +154,7 @@ const ERDComponent: React.FC = () => {
         edgeReconnectSuccessful.current = false;
     }, []);
 
-    const onReconnect = useCallback((oldEdge: Edge, newConnection) => {
+    const onReconnect = useCallback((oldEdge: Edge, newConnection: Connection) => {
         console.log("Reconnecting");
 
         edgeReconnectSuccessful.current = true;
@@ -129,13 +177,13 @@ const ERDComponent: React.FC = () => {
         setMousePosition(rflow.screenToFlowPosition({ x: event.clientX, y: event.clientY }));
     };
 
-
-
     return (
         <div style={{ width: '100%', height: '90vh' }}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
                 nodeTypes={nodeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
@@ -147,7 +195,9 @@ const ERDComponent: React.FC = () => {
                 onDoubleClick={handlePaneDoubleClick}
                 zoomOnDoubleClick={false}
                 edgeTypes={edgeTypes}
-
+                selectionMode={SelectionMode.Partial}
+                selectionOnDrag={isMultiSelect}
+                panOnDrag={isSingleSelect || panOnDrag}
             >
                 <Controls />
                 <Background variant="dots" gap={12} size={1} />

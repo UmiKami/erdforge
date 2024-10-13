@@ -1,6 +1,7 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import ERDComponent from '../components/ERD';
 import Toolbar from '../components/Toolbar';
+import { DnDProvider } from '../store/DnDContext';
 
 
 
@@ -9,9 +10,11 @@ import Toolbar from '../components/Toolbar';
 const Home = () => {
   return (
     <div>
-      <Toolbar/>
       <ReactFlowProvider>
-        <ERDComponent />
+        <DnDProvider>
+          <Toolbar />
+          <ERDComponent />
+        </DnDProvider>
       </ReactFlowProvider>
 
     </div>
