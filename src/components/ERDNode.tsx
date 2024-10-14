@@ -7,6 +7,7 @@ import { TbHexagonLetterUFilled } from 'react-icons/tb';
 import { GiHouseKeys } from 'react-icons/gi';
 import NN from "../assets/NotNull.svg?react"
 import "../styles/ERDNode.css"
+import useOutsideClick from '../hooks/useOutsideClick';
 
 const NodeLabel = styled.div`
   display: flex;
@@ -34,10 +35,9 @@ interface errors {
 
 // Custom node component
 const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
-
-
     const [fieldName, setFieldName] = useState('');
     const [fieldType, setFieldType] = useState('');
+
     const fieldNameRef = useRef<HTMLInputElement>(null); // Create a reference for the field name input
 
     const [isPrimaryKey, setIsPrimaryKey] = useState(false)
@@ -100,10 +100,12 @@ const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
     const [isEditing, setIsEditing] = useState(true)
     const [handleStyle, setHandleStyle] = useState('hidden w-0 h-0')
 
+    const outRef = useOutsideClick(() => setIsEditing(false))
+
     const backgroundGradientEffect = false
 
     return (
-        <NodeLabel className={`text-palette-100 bg-palette-500 border border-palette-400 ${(selected && backgroundGradientEffect) ? "animated-shadow" : selected ? "border-yellow-100" : ""}`} onDoubleClick={handleDoubleClick} onMouseLeave={() => setHandleStyle('hidden w-0 h-0')} onMouseEnter={() => setHandleStyle('w-3 h-3 block bg-palette-100')}>
+        <NodeLabel ref={outRef} className={`text-palette-100 bg-palette-500 border border-palette-400 ${(selected && backgroundGradientEffect) ? "animated-shadow" : selected ? "border-yellow-100" : ""}`} onDoubleClick={handleDoubleClick} onMouseLeave={() => setHandleStyle('hidden w-0 h-0')} onMouseEnter={() => setHandleStyle('w-3 h-3 block bg-palette-100')}>
             {/* Table Name Input */}
             <input
                 type="text"

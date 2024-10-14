@@ -8,7 +8,7 @@ Features will be added as I see fit. The dates belows are the dates when I decid
 
 #### Oct 14th, 2024
 
-* [ ] When editing table name, if I click outside the node, the table name should be saved and disabled.
+* [X] When editing table name, if I click outside the node, the table name should be saved and disabled.
 * [ ] On right click in a column, ontext menu shows up with the option to delete or edit the selected field/column
 
   * Optionally, there could just be a delete and edit button than shows up on column hover
@@ -16,3 +16,5 @@ Features will be added as I see fit. The dates belows are the dates when I decid
 
   * [ ] Enable/Disable animated color shadow of selected nodes.
   * [ ] Enable/Disable edge animation
+* [ ] Add a footer with copyright notice
+* [ ] Add navbar with site logo and option log / sign up buttons
