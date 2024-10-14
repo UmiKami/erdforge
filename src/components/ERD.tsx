@@ -20,6 +20,7 @@ import CustomEdge from './ERDEdge';
 import { useDnD } from '../store/DnDContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
+import ContextMenu from './ContextMenu';
 
 const edgeTypes = {
     'custom-edge': CustomEdge
@@ -42,6 +43,8 @@ const ERDComponent: React.FC = () => {
 
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [menu, setMenu] = useState(null);
+
 
     const rflow = useReactFlow();
 
@@ -178,9 +181,35 @@ const ERDComponent: React.FC = () => {
         setMousePosition(rflow.screenToFlowPosition({ x: event.clientX, y: event.clientY }));
     };
 
+    const ref = useRef(null);
+
+    const onNodeContextMenu = useCallback(
+        (event, node) => {
+            // Prevent native context menu from showing
+            event.preventDefault();
+
+            // Calculate position of the context menu. We want to make sure it
+            // doesn't get positioned off-screen.
+            const pane = ref.current.getBoundingClientRect();
+            setMenu({
+                id: node.id,
+                top: event.clientY < pane.height - 200 && event.clientY - 65,
+                left: event.clientX < pane.width - 200 && event.clientX,
+                right: event.clientX >= pane.width - 200 && pane.width - event.clientX,
+                bottom:
+                    event.clientY >= pane.height - 200 && pane.height - event.clientY,
+            });
+        },
+        [setMenu],
+    );
+
+    // Close the context menu if it's open whenever the window is clicked.
+    const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+
     return (
         <div style={{ width: '100%', height: '90vh' }}>
             <ReactFlow
+                ref={ref}
                 nodes={nodes}
                 edges={edges}
                 onDrop={onDrop}
@@ -192,6 +221,9 @@ const ERDComponent: React.FC = () => {
                 onReconnectStart={onReconnectStart}
                 onReconnectEnd={onReconnectEnd}
                 onPaneMouseMove={handlePaneMouseMove}
+                onNodeClick={onPaneClick}
+                onPaneClick={onPaneClick}
+                onNodeContextMenu={onNodeContextMenu}
                 onConnect={onConnect} // Handle edge creation
                 onDoubleClick={handlePaneDoubleClick}
                 zoomOnDoubleClick={false}
@@ -202,6 +234,7 @@ const ERDComponent: React.FC = () => {
             >
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} className="bg-[#040403]" color='#5B7553' gap={12} size={1} />
+                {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
             </ReactFlow>
         </div>
     );

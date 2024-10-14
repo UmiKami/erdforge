@@ -9,12 +9,16 @@ Features will be added as I see fit. The dates belows are the dates when I decid
 #### Oct 14th, 2024
 
 * [X] When editing table name, if I click outside the node, the table name should be saved and disabled.
-* [ ] On right click in a column, ontext menu shows up with the option to delete or edit the selected field/column
+* [ ] On right click in a column, context menu shows up with the option to delete or edit the selected field/column
 
   * Optionally, there could just be a delete and edit button than shows up on column hover
 * [ ] There should a be context menu that activates by right clicking anywhere on the graph, the context menu should have options to enable or disable certain effects
 
   * [ ] Enable/Disable animated color shadow of selected nodes.
   * [ ] Enable/Disable edge animation
+* [X] When right clicking on the a table specifically context menu should display settings specific to the nodes.
+
+  * [X] Delete node
+  * [X] Duplicate Node
 * [ ] Add a footer with copyright notice
 * [ ] Add navbar with site logo and option log / sign up buttons
