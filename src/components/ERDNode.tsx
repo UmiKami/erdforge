@@ -11,7 +11,6 @@ import "../styles/ERDNode.css"
 const NodeLabel = styled.div`
   display: flex;
   flex-direction: column;
-  border: 1px solid;
   padding: 10px;
   border-radius: 5px;
 `;
@@ -34,7 +33,8 @@ interface errors {
 }
 
 // Custom node component
-const TableNode: React.FC<NodeProps> = ({ data }) => {
+const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
+
 
     const [fieldName, setFieldName] = useState('');
     const [fieldType, setFieldType] = useState('');
@@ -100,10 +100,10 @@ const TableNode: React.FC<NodeProps> = ({ data }) => {
     const [isEditing, setIsEditing] = useState(true)
     const [handleStyle, setHandleStyle] = useState('hidden w-0 h-0')
 
+    const backgroundGradientEffect = false
 
-  
     return (
-        <NodeLabel className='text-palette-100 bg-palette-500 border-palette-300' onDoubleClick={handleDoubleClick} onMouseLeave={() => setHandleStyle('hidden w-0 h-0')} onMouseEnter={() => setHandleStyle('w-3 h-3 block bg-palette-100')}>
+        <NodeLabel className={`text-palette-100 bg-palette-500 border border-palette-400 ${(selected && backgroundGradientEffect) ? "animated-shadow" : selected ? "border-yellow-100" : ""}`} onDoubleClick={handleDoubleClick} onMouseLeave={() => setHandleStyle('hidden w-0 h-0')} onMouseEnter={() => setHandleStyle('w-3 h-3 block bg-palette-100')}>
             {/* Table Name Input */}
             <input
                 type="text"
@@ -161,7 +161,7 @@ const TableNode: React.FC<NodeProps> = ({ data }) => {
                     className='px-2 py-1 focus:outline-none focus:ring-1 ring-palette-100 bg-palette-100 text-palette-500 placeholder:text-palette-500'
                 />
                 <button onClick={() => setIsPrimaryKey(state => !state)} className={`bg-[#f0ffed] border transition-all ease-in-out hover:bg-yellow-400 hover:text-white border-yellow-400 mx-1 text-[#a6af2d] text-xl px-2 rounded ${isPrimaryKey && " text-white bg-yellow-400 hover:bg-transparent"}`}><IoKey /></button>
-                <button onClick={() => setIsForeignKey(state => !state)} className={`bg-[#f0ffed] border transition-all ease-in-out hover:bg-[#2d9baf] hover:text-white border-[#2d9baf] mx-1 text-[#2d9baf] text-xl px-2 rounded ${isForeignKey && " text-white bg-[#2d9baf] hover:bg-transparent"}`}><GiHouseKeys /></button>
+                <button onClick={() => setIsForeignKey(state => !state)} className={`bg-[#f0ffed] border transition-all ease-in-out hover:bg-[#2d9baf] hover:text-white border-[#2d9baf] mx-1 text-[#2d9baf] text-xl px-2 rounded ${isForeignKey && " text-white bg-[#2a98ac] b hover:bg-transparent"}`}><GiHouseKeys /></button>
                 <button onClick={() => setIsUnique(state => !state)} className={`bg-[#f0ffed] transition-all ease-in-out hover:bg-palette-400 hover:text-white border border-palette-400 mx-1 text-xl px-2 rounded ${isUnique && "text-white bg-palette-400 hover:bg-transparent" || "text-palette-400"}`}><TbHexagonLetterUFilled /></button>
                 <button onClick={() => setIsNullable(state => !state)} className={`flex items-center justify-center transition-all ease-in-out hover:bg-[#6d5375] hover:text-white border border-[#6d5375] mx-1   px-2 rounded ${isNullable && " border-indigo-300 text-white bg-[#2c277a] hover:bg-transparent"}`}>{isNullable ? <span className='font-bold text-indigo-400 '>NULL</span> : <NN height="23" width="23" className="noCross" />}</button>
                 <button onClick={handleAddField} className='ms-2 text-2xl' ><RiInsertRowBottom /></button>

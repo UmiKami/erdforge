@@ -10,3 +10,41 @@
 .noCross #crossLine {
     fill: none;
 }
+
+.animated-shadow:before,
+.animated-shadow:after {
+	content: "";
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	background: linear-gradient(
+		45deg,
+		theme(backgroundColor.palette-100),
+		theme(backgroundColor.palette-200),
+		theme(backgroundColor.palette-300),
+		theme(backgroundColor.palette-400),
+		theme(backgroundColor.green.500),
+		theme(backgroundColor.blue.400)
+	);
+	background-size: 400%;
+	width: calc(100% + 4px);
+	height: calc(100% + 4px);
+	z-index: -1;
+	animation: animate 20s linear infinite;
+}
+
+.animated-shadow:after {
+	filter: blur(20px);
+}
+
+@keyframes animate {
+	0% {
+		background-position: 0 0;
+	}
+	50% {
+		background-position: 360% 0;
+	}
+	100% {
+		background-position: 0 0;
+	}
+}
