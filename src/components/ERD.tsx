@@ -21,6 +21,7 @@ import { useDnD } from '../store/DnDContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import ContextMenu from './ContextMenu';
+import { basicTableField } from '../store/globalValues';
 
 const edgeTypes = {
     'custom-edge': CustomEdge
@@ -29,6 +30,7 @@ const edgeTypes = {
 const nodeTypes = { tableNode: TableNode };
 
 const panOnDrag = [1, 2];
+
 
 const ERDComponent: React.FC = () => {
     const edgeReconnectSuccessful = useRef(true);
@@ -80,6 +82,8 @@ const ERDComponent: React.FC = () => {
                 data: {
                     label: `Table ${nodeId}`,
                     fields: [],
+                    isEditingNode: false,
+                    setIsEditingNode: (isEditing: boolean) => setIsEditingNode(`${nodeId}`, isEditing),
                     onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
                     onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
                 },
@@ -107,9 +111,12 @@ const ERDComponent: React.FC = () => {
             },
             data: {
                 label: `Table ${nodeId}`,
+                isEditingNode: false,
                 fields: [],
+                setIsEditingNode: (isEditing: boolean) => setIsEditingNode(`${nodeId}`, isEditing),
                 onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
                 onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
+                onEditField: (editedFields: basicTableField): void => handleEditField(editedFields),
             },
             type: 'tableNode',
         };
@@ -125,6 +132,18 @@ const ERDComponent: React.FC = () => {
             )
         );
     };
+
+    const setIsEditingNode = (id: string, isEditing: boolean) => {
+        console.log("Setting editing to false", id);
+
+        setNodes((prevNodes) =>
+            prevNodes.map((node) =>
+                node.id === id ? { ...node, data: { ...node.data, isEditingNode: isEditing } } : node
+            )
+        );
+    };
+
+
 
     // Handle adding a field to a node
     const handleAddField = (id: string, fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => {
@@ -143,7 +162,35 @@ const ERDComponent: React.FC = () => {
         );
     };
 
-    
+
+    const handleEditField = (editedFields: basicTableField) => {
+        setNodes((prevNodes: Node[]) =>
+            prevNodes.map((node: Node) => ({
+                ...node,
+                data: {
+                    ...node.data,
+                    fields: node.data.fields.map((field, idx) => {
+                        if (editedFields[idx]) {
+                            // Update the field if it exists in editedFields
+                            const editedField = editedFields[idx];
+                            return {
+                                name: editedField.name || field.name,
+                                type: editedField.type || field.type,
+                                isPrimaryKey: editedField.isPrimaryKey !== undefined ? editedField.isPrimaryKey : field.isPrimaryKey,
+                                isForeignKey: editedField.isForeignKey !== undefined ? editedField.isForeignKey : field.isForeignKey,
+                                isUnique: editedField.isUnique !== undefined ? editedField.isUnique : field.isUnique,
+                                isNullable: editedField.isNullable !== undefined ? editedField.isNullable : field.isNullable,
+                            };
+                        }
+                        // Return unchanged field if it's not being edited
+                        return field;
+                    }),
+                },
+            }))
+        );
+    };
+
+
     const onConnect = useCallback(
         (connection: Connection) => {
             const edge = { ...connection, type: 'custom-edge' };
