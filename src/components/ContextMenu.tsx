@@ -7,6 +7,7 @@ interface ContextMenuProps {
     left: number;
     bottom: number;
     right: number;
+    setIsEditingNode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function ContextMenu({
@@ -15,6 +16,7 @@ export default function ContextMenu({
     left,
     right,
     bottom,
+    setIsEditingNode,
     ...props
 }: ContextMenuProps) {
     const { getNode, setNodes, addNodes, setEdges } = useReactFlow();
@@ -43,6 +45,8 @@ export default function ContextMenu({
     const editNode = useCallback(() => {
         setNodes((nodes) => nodes.map((node) => {
             node.data.isEditingNode = true
+            setIsEditingNode(true)
+
             return node
         }));
     }, [setNodes]);
