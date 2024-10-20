@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     ReactFlow,
     Background,
@@ -27,12 +27,12 @@ const edgeTypes = {
     'custom-edge': CustomEdge
 }
 
-const nodeTypes = { tableNode: TableNode };
 
 const panOnDrag = [1, 2];
 
 
 const ERDComponent: React.FC = () => {
+
     const edgeReconnectSuccessful = useRef(true);
 
     const isSingleSelect = useSelector((state: RootState) => state.erdTools.singleSelect)
@@ -47,6 +47,14 @@ const ERDComponent: React.FC = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [menu, setMenu] = useState(null);
 
+    const [isEditingNode2, setIsEditingNode2] = useState<boolean>(false)
+
+    const nodeTypes = useMemo(() => ({ tableNode: (props: any) => <TableNode setIsEditingNode2={setIsEditingNode2} isEditingNode2={isEditingNode2} {...props} /> }), [isEditingNode2]);
+
+    useEffect(() => {
+        console.log("ISEDITING NODE @@2 ===> ", isEditingNode2);
+
+    }, [isEditingNode2])
 
     const rflow = useReactFlow();
 
@@ -57,72 +65,7 @@ const ERDComponent: React.FC = () => {
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
-    const onDrop = useCallback(
-        (event: React.MouseEvent) => {
-            event.preventDefault();
 
-            console.log("Dropping 1, node ID: ", nodeId);
-
-
-            // check if the dropped element is valid
-            if (!type) {
-                return;
-            }
-
-            console.log("Dropping 2");
-
-            const position = rflow.screenToFlowPosition({
-                x: event.clientX,
-                y: event.clientY,
-            });
-
-            const newNode: Node = {
-                id: `${nodeId}`,
-                position,
-                data: {
-                    label: `Table ${nodeId}`,
-                    fields: [],
-                    isEditingNode: false,
-                    setIsEditingNode: (isEditing: boolean) => setIsEditingNode(`${nodeId}`, isEditing),
-                    onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
-                    onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
-                },
-                type: 'tableNode',
-            };
-            console.log("Dropping 3");
-
-            setNodes((prev) => [...prev, newNode]);
-            console.log("Dropping 4");
-            setNodeId((prev) => prev + 1);
-            console.log("Dropping 5");
-        },
-        [rflow.screenToFlowPosition, type, nodeId],
-    );
-
-    // Handle pane double-click to add a node
-    const handlePaneDoubleClick = (_: React.MouseEvent) => {
-
-
-        const newNode: Node = {
-            id: `${nodeId}`,
-            position: {
-                x: mousePosition.x,
-                y: mousePosition.y,
-            },
-            data: {
-                label: `Table ${nodeId}`,
-                isEditingNode: false,
-                fields: [],
-                setIsEditingNode: (isEditing: boolean) => setIsEditingNode(`${nodeId}`, isEditing),
-                onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
-                onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
-                onEditField: (editedFields: basicTableField): void => handleEditField(editedFields),
-            },
-            type: 'tableNode',
-        };
-        setNodes((prev) => [...prev, newNode]);
-        setNodeId((prev) => prev + 1);
-    };
 
     // Handle table name change
     const handleTableNameChange = (id: string, newName: string) => {
@@ -252,6 +195,72 @@ const ERDComponent: React.FC = () => {
 
     // Close the context menu if it's open whenever the window is clicked.
     const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+    const onDrop = useCallback(
+        (event: React.MouseEvent) => {
+            event.preventDefault();
+
+            console.log("Dropping 1, node ID: ", nodeId);
+
+
+            // check if the dropped element is valid
+            if (!type) {
+                return;
+            }
+
+            console.log("Dropping 2");
+
+            const position = rflow.screenToFlowPosition({
+                x: event.clientX,
+                y: event.clientY,
+            });
+
+            const newNode: Node = {
+                id: `${nodeId}`,
+                position,
+                data: {
+                    label: `Table ${nodeId}`,
+                    fields: [],
+                    isEditingNode: false,
+                    setIsEditingNode: (isEditing: boolean) => setIsEditingNode(`${nodeId}`, isEditing),
+                    onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
+                    onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
+                },
+                type: 'tableNode',
+            };
+            console.log("Dropping 3");
+
+            setNodes((prev) => [...prev, newNode]);
+            console.log("Dropping 4");
+            setNodeId((prev) => prev + 1);
+            console.log("Dropping 5");
+        },
+        [rflow.screenToFlowPosition, type, nodeId],
+    );
+
+    // Handle pane double-click to add a node
+    const handlePaneDoubleClick = (_: React.MouseEvent) => {
+
+
+        const newNode: Node = {
+            id: `${nodeId}`,
+            position: {
+                x: mousePosition.x,
+                y: mousePosition.y,
+            },
+            data: {
+                label: `Table ${nodeId}`,
+                isEditingNode: false,
+                fields: [],
+                setIsEditingNode: (isEditing: boolean) => setIsEditingNode(`${nodeId}`, isEditing),
+                onNameChange: (newName: string) => handleTableNameChange(`${nodeId}`, newName),
+                onAddField: (fieldName: string, fieldType: string, isPrimaryKey: boolean, isForeignKey: boolean, isUnique: boolean, isNullable: boolean) => handleAddField(`${nodeId}`, fieldName, fieldType, isPrimaryKey, isForeignKey, isUnique, isNullable),
+                onEditField: (editedFields: basicTableField): void => handleEditField(editedFields),
+            },
+            type: 'tableNode',
+        };
+        setNodes((prev) => [...prev, newNode]);
+        setNodeId((prev) => prev + 1);
+    };
 
     return (
         <div style={{ width: '100%', height: '90vh' }}>
@@ -278,10 +287,11 @@ const ERDComponent: React.FC = () => {
                 selectionMode={SelectionMode.Partial}
                 selectionOnDrag={isMultiSelect}
                 panOnDrag={isSingleSelect || panOnDrag}
+
             >
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} className="bg-[#040403]" color='#5B7553' gap={12} size={1} />
-                {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
+                {menu && <ContextMenu setIsEditingNode={setIsEditingNode2} onClick={onPaneClick} {...menu} />}
             </ReactFlow>
         </div>
     );
