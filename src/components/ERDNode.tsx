@@ -84,13 +84,31 @@ const TableNode: React.FC<TableNodeProps> = ({ data, selected, isEditingNode2, s
 
     function editFieldPrimaryKey(index: number): void {
         setEdititedFields((obj: basicTableField) => {
+
+
+            if (index in obj) {
+                return {
+                    ...obj,
+                    [index]: {
+                        ...obj[index],
+                        isPrimaryKey: !obj[index].isPrimaryKey || false,
+                    },
+                };
+            }
+
+
             return {
                 ...obj,
                 [index]: {
-                    ...obj[index],
-                    isPrimaryKey: !obj[index].isPrimaryKey,
+                    isPrimaryKey: true,
+                    isForeignKey: false,
+                    isNullable: false,
+                    isUnique: false,
+                    name: "",
+                    type: "",
                 },
             };
+
         });
     }
 
@@ -223,7 +241,7 @@ const TableNode: React.FC<TableNodeProps> = ({ data, selected, isEditingNode2, s
 
             {/* New Field Inputs */}
             <FieldInputRow
-                isEditingNode={isEditingNode2}
+                isEditingNode={false}
                 setErrors={setErrrors}
                 data={data}
                 handleStyle={handleStyle}
